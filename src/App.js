@@ -4,25 +4,33 @@ import './App.css';
 
 
 const App  = () => {
-  const APP_ID = "0ac1f7fe";
-  const APP_KEY = "6588cb9f87a1fc1b87039dbae5601501";
+  // const APP_ID = "0ac1f7fe";
+  // const APP_KEY = "6588cb9f87a1fc1b87039dbae5601501";
 
   const [recipes, setRecipes] = useState([]);
   const [search, setSearch] = useState("");
-  const [query, setQuery] = useState('avacado') ;
+  const [query, setQuery] = useState('avocado') ;
 
   useEffect(() => {
     getRecipes();
   }, [query]);
 
-  const getRecipes = async () => {
-    const response = await fetch 
-    (`https://api.edamam.com/search?q=${query}&app_id=${APP_ID}&app_key=${APP_KEY}`
+const getRecipes = async () => {
+  try {
+    const response = await fetch(
+      `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`
     );
+
     const data = await response.json();
-    setRecipes(data.hits);
-    console.log(data.hits);
-  };
+
+    // TheMealDB returns "meals" instead of "hits"
+    setRecipes(data.meals || []);
+
+    console.log(data.meals);
+  } catch (error) {
+    console.error("Error fetching recipes:", error);
+  }
+};
 
   const updateSearch = e => {
     setSearch(e.target.value);
@@ -45,15 +53,12 @@ const App  = () => {
         </button>
     </form>
     <div className="recipes">
-    {recipes.map(recipe =>(
-      <Recipe
-      key={recipe.recipe.label}
-      title = {recipe.recipe.label} 
-      calories= {recipe.recipe.calories}
-      image= {recipe.recipe.image}
-      ingredients={recipe.recipe.ingredients}
-       />
-    ))}
+{recipes.map(recipe => (
+  <div key={recipe.idMeal}>
+    <h2>{recipe.strMeal}</h2>
+    <img src={recipe.strMealThumb} alt={recipe.strMeal} />
+  </div>
+))}
     </div>
     </div>
   );
